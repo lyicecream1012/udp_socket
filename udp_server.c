@@ -6,6 +6,8 @@
     #include<sys/socket.h>
     #include<netinet/in.h>
     #include<string.h>
+    #include<sys/stat.h>
+    #include<fcntl.h>
 
     #define MYPORT 8887
 
@@ -22,6 +24,7 @@
         struct sockaddr_in peeraddr;
         socklen_t peerlen;
         int n;
+        int fd;
 
         while (1)
         {
@@ -40,6 +43,10 @@
             }
             else if(n > 0)
             {
+                /* It is need to inspect whether the log dir is exist, add later*/
+                fd=open("../log/test.log",O_RDWR|O_CREAT|O_APPEND,S_IREAD|S_IWRITE);
+                write(fd,recvbuf,n);
+                close(fd);
                 printf("接收到的数据：%s\n",recvbuf);
                 sendto(sock, recvbuf, n, 0,
                        (struct sockaddr *)&peeraddr, peerlen);

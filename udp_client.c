@@ -1,5 +1,7 @@
     #include <unistd.h>
     #include <sys/types.h>
+    #include<sys/stat.h>
+    #include<fcntl.h>
     #include <sys/socket.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
@@ -28,11 +30,16 @@
         servaddr.sin_addr.s_addr = inet_addr(SERVERIP);
 
         int ret;
+        int fd;
         char sendbuf[BUFFER_SIZE] = {0};
         char recvbuf[BUFFER_SIZE] = {0};
-        while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
-        {
+	char *filename = "client_test.txt";
 
+	fd=open(filename,O_RDWR);
+
+        while (-1 != fd)
+        {
+	    read(fd,sendbuf,strlen(sendbuf));
             printf("Send to server：%s\n",sendbuf);
             sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
@@ -48,7 +55,7 @@
             memset(sendbuf, 0, sizeof(sendbuf));
             memset(recvbuf, 0, sizeof(recvbuf));
         }
-
+	close(fd);
         close(sock);
 
 

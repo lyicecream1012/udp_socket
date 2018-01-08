@@ -28,7 +28,7 @@ void echo_cli(int sock)
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(MYPORT);
     servaddr.sin_addr.s_addr = inet_addr(SERVERIP);
-
+  
     int ret;
     int fd;
     char sendbuf[BUFFER_SIZE] = {0};
@@ -39,7 +39,7 @@ void echo_cli(int sock)
 
     while (-1 != fd)
     {
-	read(fd,sendbuf,BUFFER_SIZE);
+        read(fd,sendbuf,BUFFER_SIZE);
         /*printf("Send to server：%s\n",sendbuf);*/
         sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
 

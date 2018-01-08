@@ -15,59 +15,58 @@
 char* SERVERIP = "127.0.0.1";
 
 #define ERR_EXIT(m) \
-	do \
-{ \
-	perror(m); \
-	exit(EXIT_FAILURE); \
-} while(0)
+    do \
+    { \
+    perror(m); \
+    exit(EXIT_FAILURE); \
+    } while(0)
 
 void echo_cli(int sock)
 {
-	struct sockaddr_in servaddr;
-	memset(&servaddr, 0, sizeof(servaddr));
-	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(MYPORT);
-	servaddr.sin_addr.s_addr = inet_addr(SERVERIP);
+    struct sockaddr_in servaddr;
+    memset(&servaddr, 0, sizeof(servaddr));
+    servaddr.sin_family = AF_INET;
+    servaddr.sin_port = htons(MYPORT);
+    servaddr.sin_addr.s_addr = inet_addr(SERVERIP);
+  
+    int ret;
+    int fd;
+    char sendbuf[BUFFER_SIZE] = {0};
+    char recvbuf[BUFFER_SIZE] = {0};
+    char *filename = "client_test.txt";
 
-	int ret;
-	int fd;
-	char sendbuf[BUFFER_SIZE] = {0};
-	char recvbuf[BUFFER_SIZE] = {0};
-	char *filename = "client_test.txt";
+    fd=open(filename,O_RDWR);
 
-	fd=open(filename,O_RDWR);
+    while (-1 != fd)
+    {
+        read(fd,sendbuf,BUFFER_SIZE);
+        /*printf("Send to server：%s\n",sendbuf);*/
+        sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
-	while (-1 != fd)
-	{
-		read(fd,sendbuf,strlen(sendbuf));
-		printf("Send to server：%s\n",sendbuf);
-		sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
+        ret = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
+        if (ret == -1)
+        {
+            if (errno == EINTR)
+                continue;
+            ERR_EXIT("recvfrom");
+        }
+        /*printf("Receive from server：%s\n",recvbuf);*/
 
-		ret = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
-		if (ret == -1)
-		{
-			if (errno == EINTR)
-				continue;
-			ERR_EXIT("recvfrom");
-		}
-		printf("Receive from server：%s\n",recvbuf);
-
-		memset(sendbuf, 0, sizeof(sendbuf));
-		memset(recvbuf, 0, sizeof(recvbuf));
-	}
-	close(fd);
-	close(sock);
-
+        memset(sendbuf, 0, sizeof(sendbuf));
+        memset(recvbuf, 0, sizeof(recvbuf));
+    }
+    close(fd);
+    close(sock);
 
 }
 
 int main(void)
 {
-	int sock;
-	if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
-		ERR_EXIT("socket");
+    int sock;
+    if ((sock = socket(PF_INET, SOCK_DGRAM, 0)) < 0)
+        ERR_EXIT("socket");
 
-	echo_cli(sock);
+    echo_cli(sock);
 
-	return 0;
+    return 0;
 }

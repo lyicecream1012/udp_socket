@@ -2,7 +2,7 @@
 all: client server
 
 client: udp_client.c
-	gcc udp_client.c -o client
+	gcc udp_client.c -ggdb -o client
 
 server: udp_server.c
-	gcc udp_server.c -o server
+	gcc udp_server.c -ggdb -o server

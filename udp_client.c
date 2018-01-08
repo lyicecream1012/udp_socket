@@ -1,5 +1,7 @@
     #include <unistd.h>
     #include <sys/types.h>
+    #include<sys/stat.h>
+    #include<fcntl.h>
     #include <sys/socket.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
@@ -9,6 +11,7 @@
     #include <string.h>
 
     #define MYPORT 8887
+    #define BUFFER_SIZE 1024*16
     char* SERVERIP = "127.0.0.1";
 
     #define ERR_EXIT(m) \
@@ -27,12 +30,17 @@
         servaddr.sin_addr.s_addr = inet_addr(SERVERIP);
 
         int ret;
-        char sendbuf[1024] = {0};
-        char recvbuf[1024] = {0};
-        while (fgets(sendbuf, sizeof(sendbuf), stdin) != NULL)
-        {
+        int fd;
+        char sendbuf[BUFFER_SIZE] = {0};
+        char recvbuf[BUFFER_SIZE] = {0};
+	char *filename = "client_test.txt";
 
-            printf("向服务器发送：%s\n",sendbuf);
+	fd=open(filename,O_RDWR);
+
+        while (-1 != fd)
+        {
+	    read(fd,sendbuf,strlen(sendbuf));
+            printf("Send to server：%s\n",sendbuf);
             sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
             ret = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
@@ -42,12 +50,12 @@
                     continue;
                 ERR_EXIT("recvfrom");
             }
-            printf("从服务器接收：%s\n",recvbuf);
+            printf("Receive from server：%s\n",recvbuf);
 
             memset(sendbuf, 0, sizeof(sendbuf));
             memset(recvbuf, 0, sizeof(recvbuf));
         }
-
+	close(fd);
         close(sock);
 
 

@@ -28,7 +28,7 @@ void echo_cli(int sock)
     servaddr.sin_family = AF_INET;
     servaddr.sin_port = htons(MYPORT);
     servaddr.sin_addr.s_addr = inet_addr(SERVERIP);
-
+  
     int ret;
     int fd;
     char sendbuf[BUFFER_SIZE] = {0};

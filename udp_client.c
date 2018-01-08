@@ -41,7 +41,7 @@ void echo_cli(int sock)
     {
         read(fd,sendbuf,BUFFER_SIZE);
         /*printf("Send to server：%s\n",sendbuf);*/
-        sendto(sock, sendbuf, strlen(sendbuf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
+        sendto(sock, sendbuf, sizeof(sendbuf), 0, (struct sockaddr *)&servaddr, sizeof(servaddr));
 
         ret = recvfrom(sock, recvbuf, sizeof(recvbuf), 0, NULL, NULL);
         if (ret == -1)
